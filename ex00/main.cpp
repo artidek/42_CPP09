@@ -6,7 +6,7 @@
 /*   By: aobshatk <aobshatk@42warsaw.pl>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 19:49:19 by aobshatk          #+#    #+#             */
-/*   Updated: 2025/10/30 23:01:38 by aobshatk         ###   ########.fr       */
+/*   Updated: 2025/10/30 23:05:17 by aobshatk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int main (int argc, char **argv)
 		}
 		catch(const std::exception& e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cerr << e.what() << std::endl;
 		}
 	}
 	return 0;
