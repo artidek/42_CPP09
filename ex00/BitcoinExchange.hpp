@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aobshatk <aobshatk@42warsaw.pl>            +#+  +:+       +#+        */
+/*   By: aobshatk <aobshatk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 14:00:00 by aobshatk          #+#    #+#             */
-/*   Updated: 2025/10/30 00:14:00 by aobshatk         ###   ########.fr       */
+/*   Updated: 2025/10/30 15:08:15 by aobshatk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,14 @@
 #include <exception>
 #include <iomanip>
 #include <cmath>
+
+typedef struct s_tokens
+{
+	std::string token1;
+	std::string token2;
+	std::string token3;
+
+} t_tokens;
 
 class BitcoinError : public std::exception
 {
@@ -37,7 +45,7 @@ class Utils
 	private:
 		Utils(void);
 	public:
-		static std::string * splitStr(std::string s, char delim);
+		static t_tokens splitStr(std::string s, char delim);
 		static float toFloat(std::string val);
 		static int dateToInt(std::string val);
 		static std::string formatVal(float val);

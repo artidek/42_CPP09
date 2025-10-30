@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aobshatk <aobshatk@42warsaw.pl>            +#+  +:+       +#+        */
+/*   By: aobshatk <aobshatk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 13:59:49 by aobshatk          #+#    #+#             */
-/*   Updated: 2025/10/30 01:07:13 by aobshatk         ###   ########.fr       */
+/*   Updated: 2025/10/30 15:14:07 by aobshatk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,26 +21,27 @@ const char *BitcoinError::what() const throw()
 	return _err_msg.c_str();
 }
 
-std::string * Utils::splitStr(std::string s, char delim)
+t_tokens Utils::splitStr(std::string s, char delim)
 {
 	std::stringstream stream;
-	
+
 	stream << s;
-	std::string *tokens = new std::string[3];
+	t_tokens tokens;
 	if (delim == ',' || delim == '|')
 	{
-		if (!(std::getline(stream, tokens[0], delim) && std::getline(stream, tokens[1])))
+		if (std::getline(stream, tokens.token1, delim) && std::getline(stream, tokens.token2))
+			return tokens;
+		else
 		{
-			delete [] tokens;
 			throw BitcoinError(s);
 		}
 	}
 	else if (delim == '-')
 	{
-		
-		if (!(std::getline(stream, tokens[0], delim) && std::getline(stream, tokens[1], delim) && std::getline(stream, tokens[2], delim)))
+		if (std::getline(stream, tokens.token1, delim) && std::getline(stream, tokens.token2, delim) && std::getline(stream, tokens.token3, delim))
+			return tokens;
+		else
 		{
-			delete [] tokens;
 			throw BitcoinError(s);
 		}
 	}
@@ -69,7 +70,7 @@ int Utils::dateToInt(std::string val)
 	ss >> res;
 	if (ss.fail() || res < 0)
 		throw BitcoinError(val);
-	
+
 	char leftover;
 	if (ss >> leftover)
 		throw BitcoinError(val);
@@ -82,7 +83,7 @@ std::string Utils::formatVal(float val)
 
 	out << std::fixed << std::setprecision(2) << val;
 	std::string s = out.str();
-	
+
 	size_t lastNotZero = s.find_last_not_of('0');
 	if (lastNotZero!= std::string::npos)
 	{
@@ -97,14 +98,13 @@ BitcoinData::BitcoinData(void)
 {
 	std::fstream fileStr("data.csv");
 	std::string line;
-	std::string *keyVal;
+	t_tokens keyVal;
 
 	std::getline(fileStr, line);
 	while (std::getline(fileStr, line))
 	{
 		keyVal = Utils::splitStr(line, ',');
-		_bd.insert(std::make_pair(keyVal[0], Utils::toFloat(keyVal[1])));
-		delete [] keyVal;
+		_bd.insert(std::make_pair(keyVal.token1, Utils::toFloat(keyVal.token2)));
 	}
 }
 
@@ -168,7 +168,7 @@ void Validator::validValue (std::string val)
 
 void Validator::validDate(std::string date)
 {
-	std::string *yearMonthDate;
+	t_tokens yearMonthDate;
 	std::string error;
 	int year;
 	int month;
@@ -186,17 +186,16 @@ void Validator::validDate(std::string date)
 		throw BitcoinError(error);
 	try
 	{
-		year = Utils::dateToInt(yearMonthDate[0]);
-		month = Utils::dateToInt(yearMonthDate[1]);
-		day = Utils::dateToInt(yearMonthDate[2]);
+		year = Utils::dateToInt(yearMonthDate.token1);
+		month = Utils::dateToInt(yearMonthDate.token2);
+		day = Utils::dateToInt(yearMonthDate.token3);
 	}
 	catch(const std::exception& e)
 	{
-		delete [] yearMonthDate;
 		error = e.what();
 	}
 	if (!error.empty())
-		throw BitcoinError(error);
+		throw BitcoinError(date);
 	try
 	{
 		Validator::validYear(year);
@@ -205,7 +204,6 @@ void Validator::validDate(std::string date)
 	}
 	catch(const std::exception& e)
 	{
-		delete [] yearMonthDate;
 		error = e.what();
 	}
 	if (!error.empty())
@@ -214,33 +212,32 @@ void Validator::validDate(std::string date)
 
 void Validator::validate(std::string input)
 {
-	std::stringstream errStr("Error: ");
+	std::stringstream errStr;
+	std::string errHead = "Error: ";
 	std::string error;
-	std::string *keyVals;
+	t_tokens keyVals;
 	float val = - 1.0;
 	try
 	{
 		keyVals = Utils::splitStr(input, '|');
-		Validator::validDate(keyVals[0]);
+		Validator::validDate(keyVals.token1);
 	}
 	catch(const std::exception& e)
 	{
-		errStr << "bad intput: => ";
-		errStr << e.what() << '\n';
-		errStr >> error;
+		errStr << errHead << "bad intput => " << e.what();
+		error = errStr.str();
 	}
 	if (!error.empty())
 		throw BitcoinError(error);
 	try
 	{
-		Validator::validValue(keyVals[1]);
+		Validator::validValue(keyVals.token2);
 	}
 	catch(const std::exception& e)
 	{
-		errStr << e.what();
-		errStr >> error;
-		delete [] keyVals;
+		errStr << errHead << e.what();
+		error = errStr.str();
 	}
-	if (!error.empty() || val < 0) 
+	if (!error.empty() || val < 0)
 		throw BitcoinError(error);
 }
