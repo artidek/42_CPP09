@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aobshatk <aobshatk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aobshatk <aobshatk@42warsaw.pl>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 19:49:19 by aobshatk          #+#    #+#             */
-/*   Updated: 2025/10/30 15:15:09 by aobshatk         ###   ########.fr       */
+/*   Updated: 2025/10/30 21:11:15 by aobshatk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,15 @@ int main (int argc, char **argv)
 		std::cerr << errorMsg << std::endl;
 		return 1;
 	}
+	std::string line;
 	std::fstream inputFile(argv[1]);
-	if (inputFile.fail())
+	if (inputFile.fail() || !std::getline(inputFile, line))
 	{
 		std::cerr << errorMsg << std::endl;
 		return 1;
 	}
-	std::string line;
 	std::string error;
 	BitcoinData bd;
-	float price;
-	std::getline(inputFile, line);
 	t_tokens keyVals;
 	while (std::getline(inputFile, line))
 	{
@@ -46,9 +44,7 @@ int main (int argc, char **argv)
 		if (error.empty())
 		{
 			keyVals = Utils::splitStr(line, '|');
-			price = bd.findPrice(keyVals.token1);
-			price *= Utils::toFloat(keyVals.token2);
-			std::cout << keyVals.token1 << " => " << keyVals.token2 << " = " << Utils::formatVal(price) << std::endl;
+			std::cout << keyVals.token1 << " => " << keyVals.token2 << " = " << Utils::formatVal(bd.findPrice(keyVals.token1) * Utils::toFloat(keyVals.token2)) << std::endl;
 		}
 	}
 	return 0;
