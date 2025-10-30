@@ -6,7 +6,7 @@
 /*   By: aobshatk <aobshatk@42warsaw.pl>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 13:59:49 by aobshatk          #+#    #+#             */
-/*   Updated: 2025/10/30 21:05:38 by aobshatk         ###   ########.fr       */
+/*   Updated: 2025/10/30 22:49:48 by aobshatk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,9 +157,8 @@ void Validator::validValue (std::string val)
 	catch(const std::exception& e)
 	{
 		error = e.what();
-	}
-	if (!error.empty())
 		throw BitcoinError(error);
+	}
 	if (check < 0)
 		throw BitcoinError("not a positive number");
 	if (check > 1000)
@@ -181,9 +180,8 @@ void Validator::validDate(std::string date)
 	catch(const std::exception& e)
 	{
 		error = e.what();
-	}
-	if (!error.empty())
 		throw BitcoinError(error);
+	}
 	try
 	{
 		year = Utils::dateToInt(yearMonthDate.token1);
@@ -193,9 +191,8 @@ void Validator::validDate(std::string date)
 	catch(const std::exception& e)
 	{
 		error = e.what();
-	}
-	if (!error.empty())
 		throw BitcoinError(date);
+	}
 	try
 	{
 		Validator::validYear(year);
@@ -205,9 +202,8 @@ void Validator::validDate(std::string date)
 	catch(const std::exception& e)
 	{
 		error = e.what();
-	}
-	if (!error.empty())
 		throw BitcoinError(date);
+	}
 }
 
 void Validator::validate(std::string input)
@@ -216,7 +212,6 @@ void Validator::validate(std::string input)
 	std::string errHead = "Error: ";
 	std::string error;
 	t_tokens keyVals;
-	float val = - 1.0;
 	try
 	{
 		keyVals = Utils::splitStr(input, '|');
@@ -225,10 +220,8 @@ void Validator::validate(std::string input)
 	catch(const std::exception& e)
 	{
 		errStr << errHead << "bad intput => " << e.what();
-		error = errStr.str();
+		throw BitcoinError(errStr.str());
 	}
-	if (!error.empty())
-		throw BitcoinError(error);
 	try
 	{
 		Validator::validValue(keyVals.token2);
@@ -236,8 +229,6 @@ void Validator::validate(std::string input)
 	catch(const std::exception& e)
 	{
 		errStr << errHead << e.what();
-		error = errStr.str();
+		throw BitcoinError(errStr.str());
 	}
-	if (!error.empty() || val < 0)
-		throw BitcoinError(error);
 }
